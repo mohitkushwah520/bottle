@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --slide1 : #f37e3a;
+            --slide2 : #7d33d6;
+            --slide3 : #1ac478;
+        }
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .container{
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .scene{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .slide{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: all .5s;
+            /* background-attachment: fixed; */
+        }
+        .slide1{
+            background-color: var(--slide1);
+            /* z-index: 3; */
+            background-image: url('./assets/renew1.png');
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+        .slide2{
+            background-color: var(--slide2);
+            /* z-index: 2; */
+            left: 100%;
+            background-image: url('./assets/renew2.png');
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }   
+        .slide3{
+            
+            background: url('./assets/renew1.png');
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-attachment: fixed;
+            background-color: var(--slide3);
+            /* z-index: 1; */
+            left: 100%;
+        }
+        .slide.active{
+            z-index: 8;
+            left: 0 !important;
+            background-position: 50% 50%;
+        }
+.circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+
+.circle span {
+    pointer-events: none;
+    width: 300px;
+    height: 300px;
+    border-radius: 54% 46% 42% 58% / 60% 58% 42% 40%;
+    background: #fff;
+    display: block;
+    position: absolute;
+    mix-blend-mode: screen;
+    animation: wave 5s infinite;
+    transform: translate(-50%, -50%);
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slide1 slide active"></div>
+        <div class="slide2 slide"></div>
+        <div class="slide3 slide"></div>
+        <div class="scene"></div>
+        <!-- <div class="circle">
+            <span></span>
+        </div>
+    </div> -->
+    <script src="./js/three.min.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/GLTFLoader.js"></script>
+    <script>
+        
+        let bottle,scene,renderer,camera,container,controls,bottle1,bottle2,bottleScene,bottle2Scene,bottle1Scene,counter;
+        container = document.querySelector('.scene');
+        let slide = 0
+        function init(){
+            //Create scene
+            scene = new THREE.Scene();
+
+            const fov = 35;
+            const aspect = container.clientWidth / container.clientHeight;
+            const near = 0.1;
+            const far = 1000;
+
+            //Camera setup
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.set(0, 0, 350);
+
+            const ambient = new THREE.AmbientLight(0x404040, .75);
+            scene.add(ambient);
+
+            const light = new THREE.DirectionalLight(0xffffff,.75);
+            light.position.set(50, 50, 1000);
+            scene.add(light);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            container.appendChild(renderer.domElement);
+            
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+             //Load Model
+             let loader = new THREE.GLTFLoader();
+            loader.load("./assets/MultiVitamins.glb", function(gltf) {
+                bottleScene = gltf.scene;
+                bottle = gltf.scene.children[0];
+                bottle.position.set(0,-65,1.5)
+                bottle.rotation.set(0,3,0)
+                scene.add(bottleScene)
+                animate();
+            });
+
+            loader.load("./assets/NightVitamins.glb", function(gltf) {
+                bottle1Scene = gltf.scene
+                scene.add(gltf.scene);
+                bottle1 = gltf.scene.children[0];
+                bottle1.position.set(0,-65,0)
+                bottle1.rotation.set(0,0,0)
+                animate();
+            });
+            loader.load("./assets/HairVitamins.glb", function(gltf) {
+                bottle2Scene = gltf.scene
+                // scene.add(gltf.scene);
+                bottle2 = gltf.scene.children[0];
+                bottle2.position.set(0,-65,2)
+                bottle2.rotation.set(0,3,0)
+                animate();
+            });
+        }
+        let slide1 = false
+        let slide2 = false
+        let slide3 = false
+
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+            controls.update();
+            // console.log(bottleScene.rotation.y,bottle1Scene.rotation.y,bottle2Scene.rotation.y)
+            if(slide1){
+                if(bottleScene.rotation.y >= -3.35){
+                    bottleScene.rotation.y -= 0.05
+                    bottle1Scene.rotation.y -= 0.05
+                }
+                if(bottleScene.rotation.y <= -3.39){
+                    bottle2Scene.rotation.y = -3.3
+                    scene.remove(bottleScene)
+                    scene.add(bottle2Scene)
+                }
+            }
+            if(slide2){
+                if(bottle1Scene.rotation.y >= -6.4){
+                    bottle1Scene.rotation.y -= 0.05
+                    bottle2Scene.rotation.y -= 0.05
+                }
+                if(bottle1Scene.rotation.y <= -6.44){
+                    scene.remove(bottle1Scene)
+                    scene.add(bottleScene)
+                }
+            }
+            if(slide3){
+                if(bottle2Scene.rotation.y >= -9.4){
+                    bottleScene.rotation.y -= 0.05
+                    bottle2Scene.rotation.y -= 0.05
+                }
+                if(bottle2Scene.rotation.y <= -9.39){
+                    scene.remove(bottle2Scene)
+                    scene.add(bottle1Scene)
+                }
+
+            }
+            // if()
+            // if(slide1){
+            //     scene.add(bottleScene)
+            //     scene.add(bottle1Scene)
+            //     scene.remove(bottle2Scene)
+            // }
+            // if(!slide1){
+            //     scene.add(bottle2Scene)
+            //     scene.add(bottle1Scene)
+            //     scene.remove(bottleScene)
+            // }
+            // scene.rotation.y += .005
+            // bottleScene.rotation.y += 0.05
+            // bottle1Scene.rotation.y += 0.05
+        }
+        // setInterval(()=>{
+        //     if(slide%4 === 0 || slide === 0){
+        //         counter = 0
+        //     } else if(slide%4 === 0 || slide%2 === 0){
+        //         counter = 2
+        //     } else{
+        //         counter = 1
+        //     }
+        //     slide++
+        //     // console.log(counter)
+        // },3000)
+        let i = 2
+        setTimeout(()=>{
+            slide1 = true
+        },i*2000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*3000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*4000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*5000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*6000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*7000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*8000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*9000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*10000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*11000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*12000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*13000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*14000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*15000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*16000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*17000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*18000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*19000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*20000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*21000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*22000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*23000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*24000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*25000)
+       
+        init();
+        function onWindowResize() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        window.addEventListener("resize", onWindowResize);
+
+    </script>
+     <script>
+        let slider1 = document.querySelector('.slide1')
+        let slider2 = document.querySelector('.slide2')
+        let slider3 = document.querySelector('.slide3')
+        setTimeout(()=>{
+            slider1.classList.remove('active')
+            slider2.classList.add('active')
+        },i*2000);
+        setTimeout(()=>{
+            slider1.style.left = '100%'
+            slider2.style.left = '0'
+        },i*3000);
+        setTimeout(()=>{
+            slider2.classList.remove('active')
+            slider3.classList.add('active')
+        },i*4000);
+        setTimeout(()=>{
+            slider2.style.left = '100%'
+            slider3.style.left = '0'
+        },i*5000);
+        setTimeout(()=>{
+            slider3.classList.remove('active')
+            slider1.classList.add('active')
+        },i*6000);
+        setTimeout(()=>{
+            slider3.style.left = '100%'
+            slider1.style.left = '0'
+        },i*7000);
+        setTimeout(()=>{
+            slider1.classList.remove('active')
+            slider2.classList.add('active')
+        },i*8000);
+        setTimeout(()=>{
+            slider1.style.left = '100%'
+            slider2.style.left = '0'
+        },i*9000);
+        setTimeout(()=>{
+            slider2.classList.remove('active')
+            slider3.classList.add('active')
+        },i*10000);
+        setTimeout(()=>{
+            slider2.style.left = '100%'
+            slider3.style.left = '0'
+        },i*11000);
+        setTimeout(()=>{
+            slider3.classList.remove('active')
+            slider1.classList.add('active')
+        },i*12000);
+        setTimeout(()=>{
+            slider3.style.left = '100%'
+            slider1.style.left = '0'
+        },i*13000);
+        setTimeout(()=>{
+            slider1.classList.remove('active')
+            slider2.classList.add('active')
+        },i*14000);
+        setTimeout(()=>{
+            slider1.style.left = '100%'
+            slider2.style.left = '0'
+        },i*15000);
+        setTimeout(()=>{
+            slider2.classList.remove('active')
+            slider3.classList.add('active')
+        },i*16000);
+        setTimeout(()=>{
+            slider2.style.left = '100%'
+            slider3.style.left = '0'
+        },i*17000);
+        setTimeout(()=>{
+            slider3.classList.remove('active')
+            slider1.classList.add('active')
+        },i*18000);
+        setTimeout(()=>{
+            slider3.style.left = '100%'
+            slider1.style.left = '0'
+        },i*19000);
+        setTimeout(()=>{
+            slider1.classList.remove('active')
+            slider2.classList.add('active')
+        },i*20000);
+        setTimeout(()=>{
+            slider1.style.left = '100%'
+            slider2.style.left = '0'
+        },i*21000);
+        setTimeout(()=>{
+            slider2.classList.remove('active')
+            slider3.classList.add('active')
+        },i*22000);
+        setTimeout(()=>{
+            slider2.style.left = '100%'
+            slider3.style.left = '0'
+        },i*23000);
+        setTimeout(()=>{
+            slider3.classList.remove('active')
+            slider1.classList.add('active')
+        },i*24000);
+        setTimeout(()=>{
+            slider3.style.left = '100%'
+            slider1.style.left = '0'
+        },i*25000);
+        
+        
+    </script>
+</body>
+</html>

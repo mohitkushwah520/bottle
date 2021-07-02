@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style1.css">
+</head>
+
+<body>
+    <!-- http://127.0.0.1:5500/main.html -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="./image/logo.png" alt="">
+        </div>
+        <ul class="nav-link">
+            <li><a href="" class="active">home</a></li>
+            <li><a href="">product</a></li>
+            <li><a href="">shop</a></li>
+            <li><a href="">about</a></li>
+        </ul>
+    </div>
+    <div class="banner">
+        <div class="scene"></div>
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active" data-bs-interval="4000">
+                  <div class="slide1 slide">
+                      <div class="innerslide">
+                          <span style="--i:2.5"></span>
+                          <span style="--i:1.25"></span>
+                          <span style="--i:1.75"></span>
+                          <span style="--i:3"></span>
+                          <span style="--i:.75"></span>
+                          <span style="--i:1.5"></span>
+                          <span style="--i:2.75"></span>
+                      </div>
+                  </div>
+              </div>
+              <div class="carousel-item" data-bs-interval="4000">
+                <div class="slide2 slide">
+                    <div class="innerslide">
+                        <span style="--i:2.5"></span>
+                        <span style="--i:1.25"></span>
+                        <span style="--i:1.75"></span>
+                        <span style="--i:3"></span>
+                        <span style="--i:.75"></span>
+                        <span style="--i:1.5"></span>
+                        <span style="--i:2.75"></span>
+                    </div>
+                </div>
+            </div>
+              <div class="carousel-item" data-bs-interval="4000">
+                <div class="slide3 slide">
+                    <div class="innerslide">
+                        <span style="--i:2.5"></span>
+                        <span style="--i:1.25"></span>
+                        <span style="--i:1.75"></span>
+                        <span style="--i:3"></span>
+                        <span style="--i:.75"></span>
+                        <span style="--i:1.5"></span>
+                        <span style="--i:2.75"></span>
+                    </div>
+                </div>
+            </div>
+            </div>
+          </div>
+        <a href="" class="buynow">buy now</a>
+          <ul class="description">
+              <li><a href="">+ benefits</a></li>
+              <li><a href="">+ salts</a></li>
+              <li><a href="">+ how to take</a></li>
+          </ul>
+    </div>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.js"></script>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/GLTFLoader.js"></script>
+    <script>
+        
+        let bottle,scene,renderer,camera,container,controls,bottle1,bottle2,bottleScene,bottle2Scene,bottle1Scene,counter;
+        container = document.querySelector('.scene');
+        let slide = 0
+        function init(){
+            //Create scene
+            scene = new THREE.Scene();
+
+            const fov = 35;
+            const aspect = container.clientWidth / container.clientHeight;
+            const near = 0.1;
+            const far = 1000;
+
+            //Camera setup
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.set(0, 0, 350);
+
+            const ambient = new THREE.AmbientLight(0x404040, .75);
+            scene.add(ambient);
+
+            const light = new THREE.DirectionalLight(0xffffff,.75);
+            light.position.set(50, 50, 1000);
+            scene.add(light);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            container.appendChild(renderer.domElement);
+            
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+             //Load Model
+             let loader = new THREE.GLTFLoader();
+            loader.load("./assets/NightVitamins.glb", function(gltf) {
+                bottleScene = gltf.scene;
+                bottle = gltf.scene.children[0];
+                bottle.position.set(0,-65,1.5)
+                bottle.rotation.set(0,3,0)
+                scene.add(bottleScene)
+                animate();
+            });
+
+            loader.load("./assets/MultiVitamins.glb", function(gltf) {
+                bottle1Scene = gltf.scene
+                scene.add(gltf.scene);
+                bottle1 = gltf.scene.children[0];
+                bottle1.position.set(0,-65,0)
+                bottle1.rotation.set(0,0,0)
+                animate();
+            });
+            loader.load("./assets/HairVitamins.glb", function(gltf) {
+                bottle2Scene = gltf.scene
+                // scene.add(gltf.scene);
+                bottle2 = gltf.scene.children[0];
+                bottle2.position.set(0,-65,2)
+                bottle2.rotation.set(0,3,0)
+                animate();
+            });
+        }
+        let slide1 = false
+        let slide2 = false
+        let slide3 = false
+
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+            controls.update();
+            // console.log(bottleScene.rotation.y,bottle1Scene.rotation.y,bottle2Scene.rotation.y)
+            if(slide1){
+                if(bottleScene.rotation.y >= -3.35){
+                    bottleScene.rotation.y -= 0.05
+                    bottle1Scene.rotation.y -= 0.05
+                }
+                if(bottleScene.rotation.y <= -3.39){
+                    bottle2Scene.rotation.y = -3.3
+                    scene.remove(bottleScene)
+                    scene.add(bottle2Scene)
+                }
+            }
+            if(slide2){
+                if(bottle1Scene.rotation.y >= -6.4){
+                    bottle1Scene.rotation.y -= 0.05
+                    bottle2Scene.rotation.y -= 0.05
+                }
+                if(bottle1Scene.rotation.y <= -6.44){
+                    scene.remove(bottle1Scene)
+                    scene.add(bottleScene)
+                }
+            }
+            if(slide3){
+                if(bottle2Scene.rotation.y >= -9.4){
+                    bottleScene.rotation.y -= 0.05
+                    bottle2Scene.rotation.y -= 0.05
+                }
+                if(bottle2Scene.rotation.y <= -9.39){
+                    scene.remove(bottle2Scene)
+                    scene.add(bottle1Scene)
+                }
+
+            }
+        }
+        let i = 2
+        setTimeout(()=>{
+            slide1 = true
+        },i*2000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*3000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*4000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*5000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*6000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*7000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*8000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*9000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*10000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*11000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*12000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*13000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*14000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*15000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*16000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*17000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*18000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*19000)
+        setTimeout(()=>{
+            slide1 = true
+        },i*20000)
+        setTimeout(()=>{
+            slide1 = false
+            bottleScene.rotation.set(0,3,0)
+        },i*21000)
+        setTimeout(()=>{
+            slide2 = true
+        },i*22000)
+        setTimeout(()=>{
+            slide2 = false
+            bottle1Scene.rotation.set(0,0,0)
+        },i*23000)
+        setTimeout(()=>{
+            slide3 = true
+        },i*24000)
+        setTimeout(()=>{
+            slide3 = false
+            bottle2Scene.rotation.set(0,3,0)
+        },i*25000)
+       
+        init();
+        function onWindowResize() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        window.addEventListener("resize", onWindowResize);
+
+    </script>
+</body>
+
+</html>
